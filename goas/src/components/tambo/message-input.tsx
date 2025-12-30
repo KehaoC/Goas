@@ -374,11 +374,15 @@ const MessageInputInternal = React.forwardRef<
       >
         <div
           className={cn(
-            "relative flex flex-col rounded-xl bg-background shadow-md p-2 px-3",
+            "relative flex flex-col bg-card p-2 px-3 border-2",
             isDragging
-              ? "border border-dashed border-emerald-400"
-              : "border border-border",
+              ? "border-dashed border-ink-blue"
+              : "border-pencil",
           )}
+          style={{
+            borderRadius: "var(--wobbly-sm)",
+            boxShadow: "var(--shadow-soft)",
+          }}
         >
           {isDragging && (
             <div className="absolute inset-0 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/30 flex items-center justify-center pointer-events-none z-20">
@@ -503,7 +507,7 @@ const MessageInputTextarea = ({
       onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       className={cn(
-        "flex-1 p-3 rounded-t-lg bg-background text-foreground resize-none text-sm min-h-[82px] max-h-[40vh] focus:outline-none placeholder:text-muted-foreground/50",
+        "flex-1 p-3 bg-transparent text-foreground resize-none text-lg min-h-[82px] max-h-[40vh] focus:outline-none placeholder:text-muted-foreground/50 font-body",
         className,
       )}
       disabled={isPending || isUpdatingToken}
@@ -554,18 +558,19 @@ const MessageInputSubmitButton = React.forwardRef<
     await cancel();
   };
 
-  const buttonClasses = cn(
-    "w-10 h-10 bg-black/80 text-white rounded-lg hover:bg-black/70 disabled:opacity-50 flex items-center justify-center enabled:cursor-pointer",
-    className,
-  );
-
   return (
     <button
       ref={ref}
       type={isPending ? "button" : "submit"}
       disabled={isUpdatingToken}
       onClick={isPending ? handleCancel : undefined}
-      className={buttonClasses}
+      className={cn(
+        "w-10 h-10 bg-pencil text-paper border-2 border-pencil flex items-center justify-center enabled:cursor-pointer transition-all duration-100",
+        "hover:bg-ink-red hover:border-ink-red hover:shadow-hand-sm hover:translate-x-[2px] hover:translate-y-[2px]",
+        "disabled:opacity-50",
+        className,
+      )}
+      style={{ borderRadius: "var(--wobbly-circle)", boxShadow: "var(--shadow-sm)" }}
       aria-label={isPending ? "Cancel message" : "Send message"}
       data-slot={isPending ? "message-input-cancel" : "message-input-submit"}
       {...props}
@@ -630,11 +635,6 @@ const MessageInputMcpConfigButton = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const buttonClasses = cn(
-    "w-10 h-10 rounded-lg border border-border bg-background text-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-    className,
-  );
-
   return (
     <>
       <Tooltip content="Configure MCP Servers" side="right">
@@ -642,7 +642,12 @@ const MessageInputMcpConfigButton = React.forwardRef<
           ref={ref}
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className={buttonClasses}
+          className={cn(
+            "w-10 h-10 border-2 border-pencil bg-card text-pencil transition-all duration-100 flex items-center justify-center",
+            "hover:bg-secondary hover:shadow-hand-sm disabled:opacity-50 disabled:pointer-events-none",
+            className,
+          )}
+          style={{ borderRadius: "var(--wobbly-sm)" }}
           aria-label="Open MCP Configuration"
           data-slot="message-input-mcp-config"
           {...props}
@@ -748,18 +753,18 @@ const MessageInputFileButton = React.forwardRef<
     e.target.value = "";
   };
 
-  const buttonClasses = cn(
-    "w-10 h-10 rounded-lg border border-border bg-background text-foreground transition-colors hover:bg-muted disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-    className,
-  );
-
   return (
     <Tooltip content="Attach Images" side="top">
       <button
         ref={ref}
         type="button"
         onClick={handleClick}
-        className={buttonClasses}
+        className={cn(
+          "w-10 h-10 border-2 border-pencil bg-card text-pencil transition-all duration-100 flex items-center justify-center",
+          "hover:bg-secondary hover:shadow-hand-sm disabled:opacity-50 disabled:pointer-events-none",
+          className,
+        )}
+        style={{ borderRadius: "var(--wobbly-sm)" }}
         aria-label="Attach Images"
         data-slot="message-input-file-button"
         {...props}

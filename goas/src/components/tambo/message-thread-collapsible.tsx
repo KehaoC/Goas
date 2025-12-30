@@ -112,10 +112,14 @@ const CollapsibleContainer = React.forwardRef<
     open={isOpen}
     onOpenChange={onOpenChange}
     className={cn(
-      "fixed bottom-4 right-4 w-full max-w-sm sm:max-w-md md:max-w-lg rounded-lg shadow-lg bg-background border border-border",
-      "transition-all duration-300 ease-in-out",
+      "fixed bottom-4 right-4 w-full max-w-sm sm:max-w-md md:max-w-lg bg-card border-2 border-pencil",
+      "transition-all duration-200 ease-in-out",
       className,
     )}
+    style={{
+      borderRadius: "var(--wobbly-md)",
+      boxShadow: "var(--shadow)",
+    }}
     {...props}
   >
     {children}
@@ -154,15 +158,15 @@ const CollapsibleTrigger = ({
       <Collapsible.Trigger asChild>
         <button
           className={cn(
-            "flex items-center justify-between w-full p-4",
-            "hover:bg-muted/50 transition-colors",
+            "flex items-center justify-between w-full p-4 font-body text-lg",
+            "hover:bg-secondary/50 transition-colors border-b-2 border-dashed border-muted",
           )}
           aria-expanded={isOpen}
           aria-controls="message-thread-content"
         >
-          <span>{config.labels.closedState}</span>
+          <span className="text-pencil">{config.labels.closedState}</span>
           <span
-            className="text-xs text-muted-foreground pl-8"
+            className="text-sm text-muted-foreground pl-8 font-body"
             suppressHydrationWarning
           >
             {`(${shortcutText})`}
@@ -171,13 +175,14 @@ const CollapsibleTrigger = ({
       </Collapsible.Trigger>
     )}
     {isOpen && (
-      <div className="flex items-center justify-between w-full p-4">
+      <div className="flex items-center justify-between w-full p-4 border-b-2 border-dashed border-muted">
         <div className="flex items-center gap-2">
-          <span>{config.labels.openState}</span>
+          <span className="font-heading text-lg text-pencil">{config.labels.openState}</span>
           <ThreadDropdown onThreadChange={onThreadChange} />
         </div>
         <button
-          className="p-1 rounded-full hover:bg-muted/70 transition-colors cursor-pointer"
+          className="p-2 hover:bg-ink-red hover:text-white transition-colors cursor-pointer border-2 border-pencil"
+          style={{ borderRadius: "var(--wobbly-circle)" }}
           onClick={(e) => {
             e.stopPropagation();
             onClose();

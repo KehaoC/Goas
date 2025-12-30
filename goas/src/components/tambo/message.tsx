@@ -265,9 +265,10 @@ const MessageContent = React.forwardRef<HTMLDivElement, MessageContentProps>(
       <div
         ref={ref}
         className={cn(
-          "relative block rounded-3xl px-4 py-2 text-[15px] leading-relaxed transition-all duration-200 font-medium max-w-full [&_p]:py-1 [&_li]:list-item",
+          "relative block px-4 py-3 text-lg leading-relaxed transition-all duration-200 font-body max-w-full [&_p]:py-1 [&_li]:list-item border-2 border-pencil bg-card",
           className,
         )}
+        style={{ borderRadius: "var(--wobbly-sm)", boxShadow: "var(--shadow-soft)" }}
         data-slot="message-content"
         {...props}
       >

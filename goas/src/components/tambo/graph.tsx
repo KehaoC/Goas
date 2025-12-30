@@ -18,19 +18,16 @@ type GraphVariant = "default" | "solid" | "bordered";
 type GraphSize = "default" | "sm" | "lg";
 
 /**
- * Variants for the Graph component
+ * Variants for the Graph component - Hand-drawn style
  */
 export const graphVariants = cva(
-  "w-full rounded-lg overflow-hidden transition-all duration-200",
+  "w-full overflow-hidden transition-all duration-200 bg-card border-2 border-pencil",
   {
     variants: {
       variant: {
-        default: "bg-background",
-        solid: [
-          "shadow-lg shadow-zinc-900/10 dark:shadow-zinc-900/20",
-          "bg-muted",
-        ].join(" "),
-        bordered: ["border-2", "border-border"].join(" "),
+        default: "",
+        solid: "bg-secondary",
+        bordered: "border-dashed",
       },
       size: {
         default: "h-64",
@@ -157,13 +154,13 @@ export type GraphProps = z.infer<typeof graphSchema>;
 export type GraphDataType = z.infer<typeof graphDataSchema>;
 
 /**
- * Default colors for the Graph component
+ * Default colors for the Graph component - Hand-drawn palette
  */
 const defaultColors = [
-  "hsl(220, 100%, 62%)", // Blue
-  "hsl(160, 82%, 47%)", // Green
-  "hsl(32, 100%, 62%)", // Orange
-  "hsl(340, 82%, 66%)", // Pink
+  "#ff4d4d", // Ink Red
+  "#2d5da1", // Ink Blue
+  "#2d2d2d", // Pencil
+  "#e5e0d8", // Erased/Muted
 ];
 
 /**
@@ -465,11 +462,15 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
         <div
           ref={ref}
           className={cn(graphVariants({ variant, size }), className)}
+          style={{
+            borderRadius: "var(--wobbly-md)",
+            boxShadow: "var(--shadow-soft)",
+          }}
           {...props}
         >
           <div className="p-4 h-full">
             {title && (
-              <h3 className="text-lg font-medium mb-4 text-foreground">
+              <h3 className="text-xl font-heading mb-4 text-pencil squiggly-underline inline-block">
                 {title}
               </h3>
             )}
