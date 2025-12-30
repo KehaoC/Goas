@@ -1,118 +1,109 @@
-/**
- * @file tambo.ts
- * @description Central configuration file for Tambo components and tools
- *
- * This file serves as the central place to register your Tambo components and tools.
- * It exports arrays that will be used by the TamboProvider.
- *
- * Read more about Tambo at https://tambo.co/docs
- */
-
 import { Graph, graphSchema } from "@/components/tambo/graph";
 import { DataCard, dataCardSchema } from "@/components/ui/card-data";
-import {
-  getCountryPopulations,
-  getGlobalPopulationTrend,
-} from "@/services/population-stats";
+import { HotspotCard, hotspotCardSchema } from "@/components/tambo/hotspot-card";
+import { HotspotBoard, hotspotBoardSchema } from "@/components/tambo/hotspot-board";
+import { CardPreview, cardPreviewSchema } from "@/components/tambo/card-preview";
+import { getHotspots } from "@/services/hotspot";
+import { saveCard, getCards } from "@/services/card";
 import type { TamboComponent } from "@tambo-ai/react";
 import { TamboTool } from "@tambo-ai/react";
 import { z } from "zod";
 
-/**
- * tools
- *
- * This array contains all the Tambo tools that are registered for use within the application.
- * Each tool is defined with its name, description, and expected props. The tools
- * can be controlled by AI to dynamically fetch data based on user interactions.
- */
-
 export const tools: TamboTool[] = [
   {
-    name: "countryPopulation",
-    description:
-      "A tool to get population statistics by country with advanced filtering options",
-    tool: getCountryPopulations,
+    name: "getHotspots",
+    description: "获取今日热点数据。可指定分类：competitor(竞品)、trending(热榜)、ip(IP热度)、meme(热梗)",
+    tool: getHotspots,
     toolSchema: z
       .function()
       .args(
-        z
-          .object({
-            continent: z.string().optional(),
-            sortBy: z.enum(["population", "growthRate"]).optional(),
-            limit: z.number().optional(),
-            order: z.enum(["asc", "desc"]).optional(),
-          })
-          .optional(),
+        z.object({
+          category: z.enum(["competitor", "trending", "ip", "meme"]).optional(),
+          limit: z.number().optional(),
+        }).optional()
       )
       .returns(
         z.array(
           z.object({
-            countryCode: z.string(),
-            countryName: z.string(),
-            continent: z.enum([
-              "Asia",
-              "Africa",
-              "Europe",
-              "North America",
-              "South America",
-              "Oceania",
-            ]),
-            population: z.number(),
-            year: z.number(),
-            growthRate: z.number(),
-          }),
-        ),
+            id: z.string(),
+            category: z.string(),
+            title: z.string(),
+            description: z.string().nullable(),
+            heatScore: z.number().nullable(),
+          })
+        )
       ),
   },
   {
-    name: "globalPopulation",
-    description:
-      "A tool to get global population trends with optional year range filtering",
-    tool: getGlobalPopulationTrend,
+    name: "saveCard",
+    description: "将内容保存为 Card，用于保存热点或 AI 生成的内容",
+    tool: saveCard,
     toolSchema: z
       .function()
       .args(
-        z
-          .object({
-            startYear: z.number().optional(),
-            endYear: z.number().optional(),
-          })
-          .optional(),
+        z.object({
+          title: z.string(),
+          content: z.string(),
+          sourceAgent: z.string(),
+          imageUrl: z.string().optional(),
+        })
+      )
+      .returns(z.object({ id: z.string(), success: z.boolean() })),
+  },
+  {
+    name: "getMyCards",
+    description: "获取用户保存的所有 Card",
+    tool: getCards,
+    toolSchema: z
+      .function()
+      .args(
+        z.object({
+          limit: z.number().optional(),
+          offset: z.number().optional(),
+        }).optional()
       )
       .returns(
         z.array(
           z.object({
-            year: z.number(),
-            population: z.number(),
-            growthRate: z.number(),
-          }),
-        ),
+            id: z.string(),
+            title: z.string(),
+            content: z.string(),
+            sourceAgent: z.string(),
+          })
+        )
       ),
   },
-  // Add more tools here
 ];
 
-/**
- * components
- *
- * This array contains all the Tambo components that are registered for use within the application.
- * Each component is defined with its name, description, and expected props. The components
- * can be controlled by AI to dynamically render UI elements based on user interactions.
- */
 export const components: TamboComponent[] = [
   {
     name: "Graph",
-    description:
-      "A component that renders various types of charts (bar, line, pie) using Recharts. Supports customizable data visualization with labels, datasets, and styling options.",
+    description: "数据可视化图表组件，支持柱状图、折线图、饼图",
     component: Graph,
     propsSchema: graphSchema,
   },
   {
     name: "DataCard",
-    description:
-      "A component that displays options as clickable cards with links and summaries with the ability to select multiple items.",
+    description: "数据卡片组件，展示可点击的选项列表",
     component: DataCard,
     propsSchema: dataCardSchema,
   },
-  // Add more components here
+  {
+    name: "HotspotCard",
+    description: "单个热点卡片，展示热点标题、描述和热度分数",
+    component: HotspotCard,
+    propsSchema: hotspotCardSchema,
+  },
+  {
+    name: "HotspotBoard",
+    description: "热点看板，展示某个分类的热点列表",
+    component: HotspotBoard,
+    propsSchema: hotspotBoardSchema,
+  },
+  {
+    name: "CardPreview",
+    description: "Card 保存预览组件，让用户确认要保存的内容",
+    component: CardPreview,
+    propsSchema: cardPreviewSchema,
+  },
 ];

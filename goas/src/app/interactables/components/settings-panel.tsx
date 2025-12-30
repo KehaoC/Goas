@@ -374,7 +374,7 @@ export function SettingsPanel() {
         shareAnalytics: false,
         personalizationEnabled: true,
       }}
-      onPropsUpdate={(newProps) => {
+      onPropsUpdate={(newProps: Record<string, unknown>) => {
         console.log("Settings updated from Tambo:", newProps);
       }}
     />

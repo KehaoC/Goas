@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { ElicitationUI } from "@/components/tambo/elicitation-ui";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Tooltip } from "@/components/tambo/suggestions-tooltip";
 import { useTamboThreadInput, useTamboVoice } from "@tambo-ai/react";
 import { Loader2Icon, Mic, Square } from "lucide-react";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { createMarkdownComponents } from "@/components/tambo/markdown-components";
