@@ -3,6 +3,8 @@ export interface AgentApp {
   name: string;
   icon: string;
   description: string;
+  /** 是否为独立功能区（如卡片库） */
+  isSpecial?: boolean;
 }
 
 export interface AgentConfig {
@@ -20,9 +22,11 @@ export const agents: AgentConfig[] = [
     description: "发现今日热点，获取营销灵感",
     icon: "🔥",
     apps: [
-      { id: "dashboard", name: "热点看板", icon: "📊", description: "四分区热点概览" },
-      { id: "analysis", name: "热点分析", icon: "🔍", description: "深度分析热点趋势" },
-      { id: "prediction", name: "趋势预测", icon: "📈", description: "预测未来热点走向" },
+      { id: "inspiration", name: "创意灵感", icon: "💡", description: "发现热点趋势，激发创意灵感" },
+      { id: "material", name: "素材制作", icon: "🎨", description: "AI 生成营销素材" },
+      { id: "deployment", name: "批量投放", icon: "🚀", description: "批量发布与投放管理" },
+      { id: "analytics", name: "数据分析", icon: "📊", description: "投放效果数据洞察" },
+      { id: "cards", name: "卡片库", icon: "📁", description: "保存的灵感与素材卡片", isSpecial: true },
     ],
   },
   {
