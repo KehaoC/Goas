@@ -19,7 +19,7 @@ Guru Agent OS (Goas) is a web-based business system designed to improve enterpri
 
 ## Tech Stack
 
-### Frontend (app/)
+### Frontend (goas/)
 - **Framework**: Next.js 15 + React 19
 - **AI Integration**: Tambo AI SDK (`@tambo-ai/react`)
 - **Styling**: Tailwind CSS v4
@@ -27,8 +27,8 @@ Guru Agent OS (Goas) is a web-based business system designed to improve enterpri
 
 ### Backend
 - **AI Backend**: Tambo Cloud (self-hosted via `tambo/`)
-- **Business Logic**: Next.js API Routes (app/src/app/api/)
-- **Database**: PostgreSQL (shared with Tambo Cloud)
+- **Business Logic**: Next.js API Routes (goas/src/app/api/)
+- **Database**: PostgreSQL 17 (Docker, port 5434)
 
 ### Infrastructure
 - **Tambo Cloud**: `tambo/` - 提供 AI 对话、组件注册、Tool 调用等核心能力
@@ -38,13 +38,12 @@ Guru Agent OS (Goas) is a web-based business system designed to improve enterpri
 
 ```
 Goas/
-├── app/                          # 主应用 (Next.js + Tambo SDK)
+├── goas/                         # 主应用 (Next.js + Tambo SDK)
 │   ├── src/
 │   │   ├── app/                  # Next.js App Router
 │   │   │   ├── api/              # 业务 API Routes
 │   │   │   ├── chat/             # AI 对话页面
 │   │   │   ├── creative-hotspot/ # 创意热点 Agent
-│   │   │   ├── cards/            # Card 管理
 │   │   │   └── layout.tsx        # 全局布局
 │   │   ├── components/
 │   │   │   ├── tambo/            # Tambo 组件（AI 可渲染）
@@ -52,7 +51,10 @@ Goas/
 │   │   │   └── ui/               # 通用 UI 组件
 │   │   ├── lib/
 │   │   │   └── tambo.ts          # Tambo 组件/工具注册
-│   │   └── services/             # 业务逻辑服务
+│   │   ├── services/             # 业务逻辑服务
+│   │   └── db/                   # 数据库相关
+│   ├── docker-compose.yml        # PostgreSQL 数据库
+│   ├── goas-run.sh               # 启动脚本
 │   └── .env.local                # 环境变量（不提交）
 ├── tambo/                        # Tambo Cloud (git submodule)
 │   ├── apps/web/                 # Tambo 管理界面
@@ -66,7 +68,7 @@ Goas/
 
 ### 1. Component Registration (AI 可渲染组件)
 
-在 `app/src/lib/tambo.ts` 注册组件，AI 可以根据用户需求动态渲染：
+在 `goas/src/lib/tambo.ts` 注册组件，AI 可以根据用户需求动态渲染：
 
 ```tsx
 export const components: TamboComponent[] = [
@@ -119,38 +121,59 @@ export const tools: TamboTool[] = [
 
 ## Development Commands
 
-### App (主应用)
+### Goas 主应用（推荐方式）
 ```bash
-cd app
-npm install          # 安装依赖
-npm run dev          # 启动开发服务器 (localhost:3000)
-npm run build        # 构建生产版本
-npm run lint         # 代码检查
+cd goas
+
+# 环境配置（首次）
+cp docker.env.example docker.env
+cp example.env.local .env.local
+npm install
+
+# 一键启动（数据库 + 开发服务器）
+./goas-run.sh dev
+
+# 其他命令
+./goas-run.sh db     # 仅启动数据库
+./goas-run.sh stop   # 停止所有服务
 ```
 
-### Tambo Cloud
+### Goas 手动启动
+```bash
+cd goas
+docker compose --env-file docker.env up postgres -d  # 启动数据库
+npm run dev                                          # 启动开发服务器
+```
+
+### Tambo Cloud（可选，用于自托管）
 ```bash
 cd tambo
 docker compose --env-file docker.env up -d        # 启动所有服务
-docker compose --env-file docker.env up postgres -d  # 仅启动数据库
 docker compose --env-file docker.env down         # 停止服务
 ```
 
 ### 完整启动流程
 ```bash
-# 1. 启动 Tambo Cloud
+# 1. 启动 Tambo Cloud（如果自托管）
 cd tambo && docker compose --env-file docker.env up -d
 
-# 2. 启动主应用
-cd app && npm run dev
+# 2. 启动 Goas 主应用
+cd goas && ./goas-run.sh dev
 ```
 
 ## Environment Variables
 
-### app/.env.local
+### goas/.env.local
 ```
 NEXT_PUBLIC_TAMBO_API_KEY=tambo_xxx    # 从 Tambo Cloud 获取
 NEXT_PUBLIC_TAMBO_URL=http://localhost:3211
+```
+
+### goas/docker.env
+```
+POSTGRES_DB=goas
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 ```
 
 ### tambo/docker.env
@@ -166,7 +189,8 @@ This project is in early development using Tambo SDK. The roadmap includes:
 
 ## Important Notes
 
-- **Tambo 组件开发**：在 `app/src/components/tambo/` 创建，需在 `lib/tambo.ts` 注册
-- **业务 API**：在 `app/src/app/api/` 创建 Next.js API Routes
+- **Tambo 组件开发**：在 `goas/src/components/tambo/` 创建，需在 `lib/tambo.ts` 注册
+- **业务 API**：在 `goas/src/app/api/` 创建 Next.js API Routes
 - **敏感信息**：所有 `.env*` 和 `docker.env` 文件已在 `.gitignore` 中
 - **Tambo Cloud**：作为 git submodule 管理，可同步上游更新
+- **端口**：Next.js (3000) / PostgreSQL (5434)

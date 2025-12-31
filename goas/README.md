@@ -1,148 +1,136 @@
-# Tambo Template
+# Goas (Guru Agent OS)
 
-This is a starter NextJS app with Tambo hooked up to get your AI app development started quickly.
+基于 Tambo AI 的企业级 AI Agent 应用，支持生成式 UI 和智能组件渲染。
 
-## Get Started
+## Quick Start
 
-1. Run `npm create-tambo@latest my-tambo-app` for a new project
+### 1. 环境准备
 
-2. `npm install`
+```bash
+# 安装依赖
+npm install
 
-3. `npx tambo init`
+# 复制环境变量文件
+cp docker.env.example docker.env
+cp example.env.local .env.local
+```
 
-- or rename `example.env.local` to `.env.local` and add your tambo API key you can get for free [here](https://tambo.co/dashboard).
+### 2. 配置环境变量
 
-4. Run `npm run dev` and go to `localhost:3000` to use the app!
+**docker.env** - 数据库配置：
+```
+POSTGRES_DB=goas
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+```
+
+**.env.local** - Tambo 配置：
+```
+NEXT_PUBLIC_TAMBO_API_KEY=your_api_key  # 从 tambo.co/dashboard 获取
+NEXT_PUBLIC_TAMBO_URL=http://localhost:3211
+```
+
+### 3. 启动服务
+
+**推荐方式：**
+```bash
+./goas-run.sh dev    # 一键启动数据库 + 开发服务器
+```
+
+**手动方式：**
+```bash
+# 启动数据库
+docker compose --env-file docker.env up postgres -d
+
+# 启动开发服务器
+npm run dev
+```
+
+访问 http://localhost:3000
+
+### 4. 停止服务
+
+```bash
+./goas-run.sh stop
+```
+
+## 常用命令
+
+| 命令 | 说明 |
+|------|------|
+| `./goas-run.sh dev` | 启动数据库 + 开发服务器 |
+| `./goas-run.sh db` | 仅启动数据库 |
+| `./goas-run.sh stop` | 停止所有服务 |
+| `npm run dev` | 启动开发服务器 |
+| `npm run build` | 构建生产版本 |
+| `npm run lint` | 代码检查 |
+
+## Tech Stack
+
+- **Next.js 15** + **React 19** + **TypeScript**
+- **Tambo AI SDK** - AI 生成式 UI
+- **Tailwind CSS v4** - 样式
+- **PostgreSQL 17** - 数据库
+
+## Project Structure
+
+```
+src/
+├── app/                  # Next.js App Router
+│   ├── api/              # API Routes
+│   ├── chat/             # AI 对话页面
+│   ├── creative-hotspot/ # 创意热点 Agent
+│   └── layout.tsx        # 根布局
+├── components/
+│   ├── tambo/            # AI 可渲染组件
+│   ├── layout/           # 布局组件
+│   └── ui/               # 通用 UI
+├── lib/
+│   └── tambo.ts          # 组件/工具注册
+├── services/             # 业务逻辑
+└── db/
+    └── init.sql          # 数据库初始化
+```
 
 ## Customizing
 
-### Change what components tambo can control
+### 添加 AI 组件
 
-You can see how the `Graph` component is registered with tambo in `src/lib/tambo.ts`:
+在 `src/lib/tambo.ts` 注册组件：
 
 ```tsx
 const components: TamboComponent[] = [
   {
-    name: "Graph",
-    description:
-      "A component that renders various types of charts (bar, line, pie) using Recharts. Supports customizable data visualization with labels, datasets, and styling options.",
-    component: Graph,
+    name: "MyComponent",
+    description: "组件描述",
+    component: MyComponent,
     propsSchema: z.object({
-      data: z
-        .object({
-          type: z
-            .enum(["bar", "line", "pie"])
-            .describe("Type of graph to render"),
-          labels: z.array(z.string()).describe("Labels for the graph"),
-          datasets: z
-            .array(
-              z.object({
-                label: z.string().describe("Label for the dataset"),
-                data: z
-                  .array(z.number())
-                  .describe("Data points for the dataset"),
-                color: z
-                  .string()
-                  .optional()
-                  .describe("Optional color for the dataset"),
-              }),
-            )
-            .describe("Data for the graph"),
-        })
-        .describe("Data object containing chart configuration and values"),
-      title: z.string().optional().describe("Optional title for the chart"),
-      showLegend: z
-        .boolean()
-        .optional()
-        .describe("Whether to show the legend (default: true)"),
-      variant: z
-        .enum(["default", "solid", "bordered"])
-        .optional()
-        .describe("Visual style variant of the graph"),
-      size: z
-        .enum(["default", "sm", "lg"])
-        .optional()
-        .describe("Size of the graph"),
+      title: z.string(),
+      // ...
     }),
   },
-  // Add more components for Tambo to control here!
 ];
 ```
 
-You can install this graph component into any project with:
-
-```bash
-npx tambo add graph
-```
-
-The example Graph component demonstrates several key features:
-
-- Different prop types (strings, arrays, enums, nested objects)
-- Multiple chart types (bar, line, pie)
-- Customizable styling (variants, sizes)
-- Optional configurations (title, legend, colors)
-- Data visualization capabilities
-
-Update the `components` array with any component(s) you want tambo to be able to use in a response!
-
-You can find more information about the options [here](https://tambo.co/docs/concepts/registering-components)
-
-### Add tools for tambo to use
+### 添加工具
 
 ```tsx
 export const tools: TamboTool[] = [
   {
-    name: "globalPopulation",
-    description:
-      "A tool to get global population trends with optional year range filtering",
-    tool: getGlobalPopulationTrend,
-    toolSchema: z.function().args(
-      z
-        .object({
-          startYear: z.number().optional(),
-          endYear: z.number().optional(),
-        })
-        .optional(),
-    ),
+    name: "myTool",
+    description: "工具描述",
+    tool: myToolFunction,
+    toolSchema: z.function().args(/* ... */),
   },
 ];
 ```
 
-Find more information about tools [here.](https://tambo.co/docs/concepts/tools)
+## Ports
 
-### The Magic of Tambo Requires the TamboProvider
+- `3000` - Next.js 应用
+- `5434` - PostgreSQL 数据库
 
-Make sure in the TamboProvider wrapped around your app:
+## Documentation
 
-```tsx
-...
-<TamboProvider
-  apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-  components={components} // Array of components to control
-  tools={tools} // Array of tools it can use
->
-  {children}
-</TamboProvider>
-```
-
-In this example we do this in the `Layout.tsx` file, but you can do it anywhere in your app that is a client component.
-
-### Change where component responses are shown
-
-The components used by tambo are shown alongside the message resopnse from tambo within the chat thread, but you can have the result components show wherever you like by accessing the latest thread message's `renderedComponent` field:
-
-```tsx
-const { thread } = useTambo();
-const latestComponent =
-  thread?.messages[thread.messages.length - 1]?.renderedComponent;
-
-return (
-  <div>
-    {latestComponent && (
-      <div className="my-custom-wrapper">{latestComponent}</div>
-    )}
-  </div>
-);
-```
-
-For more detailed documentation, visit [Tambo's official docs](https://docs.tambo.co).
+- [Tambo 官方文档](https://docs.tambo.co)
+- [项目架构说明](./CLAUDE.md)
